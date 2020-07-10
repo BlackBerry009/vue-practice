@@ -1,25 +1,41 @@
 <template>
   <div>
-    <div class="goods" v-for="(goods,row) in goodsList" :key="goods.id">
-      <div class="title">{{ goods.title}}</div>
-      <ul class="type-list">
-        <li
-          class="type"
-          v-for="(list,i) in goods.typeList"
-          :key="i"
-          :class="{
-            active: goods.index === i 
-        }"
-          @click="handleClick(i,goods,list,row)"
-        >{{ list }}</li>
+    <div class="header">
+      <div class="container">
+        <div class="logo">toDoList</div>
+        <div class="input-area">
+          <input type="text" v-model="inpVal">
+          <button @click="addEvent">添加</button>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <h2>
+        <span>正在进行</span>
+        <span class="mask-num">{{ progressList.length }}</span>
+      </h2>
+      <ul class="mask-list">
+        <li v-for="(item,index) in progressList" :key="index">
+          <div>
+            <input type="checkbox" @click="check(index)">
+            <span>{{ item }}</span>
+          </div>
+          <button @click="deleteProgress(index)">删除</button>
+        </li>
       </ul>
     </div>
-    <div class="choose-type">
-      <div>已选条件：</div>
-      <span class="no-goods" v-if="!showFlag">暂时没有选择过滤的条件</span>
-      <ul class="filter-list" v-else>
-        <li v-for="(goods,index) in filterList" :key="index">{{ goods }}
-          <span class="delete-goods" @click="deleteGoods(index)">x</span>
+    <div class="container">
+      <h2>
+        <span>已经完成</span>
+        <span class="mask-num">{{ completeList.length }}</span>
+      </h2>
+      <ul class="mask-list complete-list">
+        <li v-for="(item,index) in completeList" :key="index">
+          <div>
+            <input type="checkbox">
+            <span>{{ item }}</span>
+          </div>
+          <button @click="deleteComplete(index)">删除</button>
         </li>
       </ul>
     </div>
@@ -28,160 +44,123 @@
 
 <script>
 export default {
-  name: "HelloWorld",
-  data() {
+  data(){
     return {
-      goodsList: [
-        {
-          title: "上装",
-          typeList: [
-            "全部",
-            "针织衫",
-            "毛呢外套",
-            "T恤",
-            "羽绒服",
-            "棉衣",
-            "卫衣",
-            "风衣"
-          ],
-          id: 1
-        },
-        {
-          title: "裤装",
-          typeList: [
-            "全部",
-            "牛仔裤",
-            "小脚/铅笔裤",
-            "休闲裤",
-            "打底裤",
-            "哈伦裤"
-          ],
-          id: 2
-        },
-        {
-          title: "裙装",
-          typeList: ["全部", "连衣裙", "半身裙", "长袖连衣裙", "中长款连衣裙"],
-          id: 3
-        }
-      ],
-      filterList: {},
-      showFlag: false
-    };
-  },
-  created() {
-    this.goodsList.forEach(item => this.$set(item, "index", 0));
+      inpVal: '',
+      progressList: [],
+      completeList: []
+    }
   },
   methods: {
-    handleClick(i,goods,list,row){
-      this.showFlag = true;
-      goods.index = i;
-      if(list == '全部'){
-        this.$delete(this.filterList,row);
-        this.checkShowFilter();
-        return;
-      };
-      this.$set(this.filterList,row,list);
+    addEvent(){
+      console.log(this.inpVal)
+      this.inpVal && this.progressList.push(this.inpVal)
+      this.inpVal = '';
     },
-    deleteGoods(key){
-      this.$delete(this.filterList,key)
-      this.goodsList[key].index = 0;
-      this.checkShowFilter();
+    check(index){
+      const content = this.progressList.splice(index,1);
+      console.log(content)
+      this.completeList.push(...content);
     },
-    checkShowFilter(){
-      const a = JSON.stringify(this.filterList)
-      this.showFlag = a !== '{}'
+    deleteProgress(index){
+      this.progressList.splice(index,1);
+    },
+    deleteComplete(index){
+      this.completeList.splice(index,1);
     }
   }
-};
+}
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-* {
-  margin: 0;
-  padding: 0;
-}
 
-ul,
-li {
+<style>
+* {
+  padding: 0;
+  margin: 0;
   list-style: none;
 }
 
-#app {
-  width: 550px;
-  margin: 80px auto;
-  padding: 5px 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 12px;
+h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+h2 .mask-num {
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 20px;
+  background-color: #e6e6fa;
   color: #666;
+  font-size: 14px;
 }
 
-#app .goods {
+body {
+  background-color: #cdcdcd;
+}
+
+.container {
+  width: 600px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+.header {
+  height: 50px;
+  background-color: #333;
+}
+
+.header .container {
   display: flex;
   align-items: center;
-  border-bottom: 1px dashed #eee;
-  text-indent: 2em;
+  justify-content: space-between;
 }
 
-#app .goods:last-child {
-  border-bottom: none;
-}
-
-#app .goods .type-list {
-  display: flex;
-  text-indent: 0;
-}
-
-#app .goods .type-list .type {
-  margin: 15px 7px;
-  padding: 5px 6px;
-  border-radius: 3px;
-  color: #039;
+.header .container .logo {
+  width: 100px;
+  line-height: 50px;
+  color: #ddd;
+  font-size: 24px;
   cursor: pointer;
 }
 
-#app .goods .type-list .type:hover {
-  color: #f60;
-  background-color: #f3edc2;
+.header .container .input-area {
+  width: 60%;
 }
 
-#app .goods .type-list .type.active {
-  color: #fff;
-  background-color: #f60;
+.header .container .input-area input {
+  width: 80%;
+  height: 24px;
+  text-indent: 10px;
+  border-radius: 5px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.24), 0 1px 6px rgba(0, 0, 0, 0.45) inset;
+  border: none;
+  outline: none;
 }
 
-#app .choose-type {
+.header .container .input-area button {
+  width: 15%;
+  height: 24px;
+  vertical-align: center;
+}
+
+.mask-list li {
   display: flex;
   align-items: center;
-  font-weight: bold;
-}
-
-#app .choose-type .no-goods {
-  color: #999;
-  font-weight: normal;
-  padding: 20px;
-}
-
-#app .choose-type .filter-list {
-  display: flex;
-  font-weight: normal;
-}
-
-#app .choose-type .filter-list li {
-  margin: 15px 10px;
-  padding: 5px 8px;
+  justify-content: space-between;
+  height: 32px;
+  line-height: 32px;
+  margin-bottom: 10px;
+  padding: 0 15px;
   border-radius: 3px;
-  color: #fff;
-  background-color: #f60;
-  cursor: pointer;
+  border-left: 5px solid #629A9C;
+  background-color: #fff;
 }
 
-#app .choose-type .filter-list li .delete-goods {
-  opacity: 0.5;
+.mask-list.complete-list li {
+  border-left-color: #999;
+  opacity: .5;
 }
 
-#app .choose-type .filter-list li .delete-goods:hover {
-  opacity: 1;
-}
 </style>
